@@ -82,7 +82,7 @@ async function rateLimiter(req, res, next) {
 --------------------------- */
 
 app.get("/health", rateLimiter, (req, res) => {
-  res.send("Auth service healthy");
+  res.send("Auth service healthy - version 2");
 });
 
 

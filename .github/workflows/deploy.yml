@@ -1,4 +1,4 @@
-name: DevOps Pipeline
+name: DevOps CI Pipeline
 
 on:
   push:
@@ -6,11 +6,40 @@ on:
       - main
 
 jobs:
+
   build:
+
     runs-on: ubuntu-latest
+
     steps:
-      - name: checkout code
+
+      - name: Checkout Repository
         uses: actions/checkout@v3
 
-      - name: print message
-        run: echo "CI/CD pipeline working"    
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+
+
+      - name: Install Auth Service Dependencies
+        run: |
+          cd services/auth-service
+          npm install
+
+
+      - name: Install Account Service Dependencies
+        run: |
+          cd services/account-service
+          npm install
+
+
+      - name: Install Payment Service Dependencies
+        run: |
+          cd services/payment-service
+          npm install
+
+
+      - name: Build Docker Images
+        run: docker compose build

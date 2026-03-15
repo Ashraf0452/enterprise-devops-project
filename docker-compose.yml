@@ -17,7 +17,7 @@ services:
       - devops-net
 
   auth-service:
-    build: ./services/auth-service
+    image: ashraf0452/auth-service:latest
     ports:
       - "4000:4000"
     environment:
@@ -35,7 +35,7 @@ services:
       - devops-net
 
   account-service:
-    build: ./services/account-service
+    image: ashraf0452/auth-service:latest
     ports:
       - "5000:5000"
     environment:
@@ -50,7 +50,7 @@ services:
       - devops-net
 
   payment-service:
-    build: ./services/payment-service
+    image: ashraf0452/auth-service:latest
     ports:
       - "6000:6000"
     environment:

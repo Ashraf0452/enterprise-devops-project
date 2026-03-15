@@ -1,4 +1,4 @@
-name: DevOps CI Pipeline
+name: DevOps CI/CD Pipeline
 
 on:
   push:
@@ -7,45 +7,51 @@ on:
 
 jobs:
 
-  build:
+  build-and-push:
 
     runs-on: ubuntu-latest
 
     steps:
 
-      - name: Checkout Repository
+      - name: Checkout Code
         uses: actions/checkout@v4
 
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
         with:
-          node-version: 18
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
 
 
-      - name: Install Auth Service Dependencies
+      - name: Build Auth Service
         run: |
-          cd services/auth-service
-          npm install
+          docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/auth-service:latest ./services/auth-service
 
 
-      - name: Install Account Service Dependencies
+      - name: Build Account Service
         run: |
-          cd services/account-service
-          npm install
+          docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/account-service:latest ./services/account-service
 
 
-      - name: Install Payment Service Dependencies
+      - name: Build Payment Service
         run: |
-          cd services/payment-service
-          npm install
+          docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/payment-service:latest ./services/payment-service
 
 
-      - name: Build Docker Images
-        run: docker compose build
+      - name: Push Auth Service
+        run: docker push ${{ secrets.DOCKERHUB_USERNAME }}/auth-service:latest
 
-                
-      - name: Deploy to EC2 Server
+
+      - name: Push Account Service
+        run: docker push ${{ secrets.DOCKERHUB_USERNAME }}/account-service:latest
+
+
+      - name: Push Payment Service
+        run: docker push ${{ secrets.DOCKERHUB_USERNAME }}/payment-service:latest
+
+
+      - name: Deploy to EC2
         uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.SERVER_IP }}
@@ -53,6 +59,5 @@ jobs:
           key: ${{ secrets.SERVER_SSH_KEY }}
           script: |
             cd ~/enterprise-devops-project
-            git pull
-            docker compose down
-            docker compose up -d --build
+            docker compose pull
+            docker compose up -d
